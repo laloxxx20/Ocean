@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
     a = new Ocean();
     a->load("spectrum.txt");
     a->generade_coordenades();
+    a->print_points();    
     a->display();
 
     glutInit(&argc, argv);

@@ -37,6 +37,8 @@ class Ocean
         bool load(char *filename) ; // carga de un archivo de modelo 
         void display(); // Visualizacion del terreno
         float computeHeight(float x , float z, float t);
+        void generade_coordenades();
+        void print_points();
 
         Ocean();
         ~Ocean();
@@ -57,7 +59,7 @@ Ocean::Ocean(){
 
 bool Ocean::load(char * filename)
 {    
-    int fas=0;
+    int fas=0.1;
     int i=0;
 
     ifstream file(filename);
@@ -82,10 +84,8 @@ bool Ocean::load(char * filename)
            i++;
         }
     }
-    else
-    {
+    else    
         cout<<"Can't read file."<<endl;
-    }
 }
 
 float Ocean::computeHeight(float x , float z, float t)
@@ -95,50 +95,58 @@ float Ocean::computeHeight(float x , float z, float t)
     for(int i=0;i<20;i++)
     {
         k=4.0* PI* PI* list_waves[i].frecuency * list_waves[i].frecuency/9.81;
-        height += list_waves[i].amplitude* cos(k*(x*cos(list_waves[i].orientation)+z*sin(list_waves[i].orientation))-2.0* PI* list_waves[i].frecuency*t+list_waves[i].fase);
+        height += list_waves[i].amplitude* cos(k*(x*cos(list_waves[i].orientation) + z*sin(list_waves[i].orientation))-2.0* PI* list_waves[i].frecuency*t+list_waves[i].fase);
     }
+    cout<< height<<endl;
     return height;
 }
 
-void Oceano::generade_coordenades()
+void Ocean::generade_coordenades()
 {
-    float x_i =-50;
-    float z_i =-30;
-    float y_i =0;
+    float x_i =-40;
+    float y_i =1;
+    float z_i =-50;
     float t=0;
-    int tam = 200*200;
-    
+    int tam = 200*200;    
+
     for(int i =0;i<tam;i++)
     {
         list_points[i].point.x = x_i;
-        list_points[i].s = 1/200;
-        list_points[i].t = 1/200;
+        list_points[i].point.y = y_i;
+        list_points[i].point.z = z_i;
+        
+        list_points[i].t = 1;
 
-        list_points[i].normal.nx = 0;
-        list_points[i].normal.ny = 0;
-        list_points[i].normal.nz = 0;
-
-        x_i += dist_x;
-        list_points[i].point.z=z_i;
+        x_i += dist_x;        
         z_i += dist_z;
 
-
-        y_i= computeHeight(lista_puntos[i].point.x,lista_puntos[i].point.y, t);
+        y_i= computeHeight(x_i, z_i, t);
+        list_points[i].point.y = y_i;
         t++;
+    }
+}
+
+void Ocean::print_points()
+{
+    for(int i = 0; i<(nb_pt_x * nb_pt_z); i++){
+        cout<<"x: "<< list_points[i].point.x<<endl;
+        cout<<"y: "<< list_points[i].point.y<<endl;
+        cout<<"z: "<< list_points[i].point.z<<endl;
+        cout<<endl<<"-------------------------------------"<<endl;
     }
 }
 
 
 void Ocean::display()
 {
-    //int tam = 200*200*6;
+    int tam = 200*200*6;
     //gluPerspective(40.0f, 1.0f, 0.01f, 1000.0f);
     //gluLookAt(-50,0,-300,-30,1,-50, 0,1,0);
     gluPerspective(45, 1, 0.1, 300);
     gluLookAt(50, 100, 50,    60,70,0,   0, 1, 0);
     //gluPerspective(45.0f, 1.0f, 0.01f, 100.0f);
     //gluLookAt(0.0f, 0.0f, -50.0f, 10 * cos(3*3.1416 / 180.0), 10 * sin(3*3.1416 / 180.0), 0.0f, 0.0f, 1.0f, 0.0f);
-    //glBindTexture(GL_TEXTURE_3D, name);
-    //glInterleavedArrays(GL_T2F_N3F_V3F, sizeof(WPoint), &list_ppoints[0].s);
-    //glDrawElements(GL_TRIANGLES,tam, GL_UNSIGNED_INT, (void*)list_index);
+    
+    
+    glDrawElements(GL_TRIANGLES, tam, GL_UNSIGNED_INT, (void*)list_points);
 }
